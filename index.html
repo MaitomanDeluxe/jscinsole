@@ -59,7 +59,7 @@
 
     .blocklyBlockBackground {
       rx: 8;  /* 角を丸くする */
-      fill: #1a1a1a !important; /* ブロックの背景色をダークグレーに */
+      /* fillはJavaScriptで動的に設定されます */
       stroke-width: 3px; /* 縁取りを太くする */
       /* レインボーの縁取りはJavaScriptで動的に設定されます */
     }
@@ -68,8 +68,8 @@
     .blocklyText {
       fill: #fff !important; /* 白い文字色 */
       /* 黒い縁取り（影でシミュレート）*/
-      text-shadow: 
-        -1px -1px 0 #000,  
+      text-shadow:
+        -1px -1px 0 #000,
          1px -1px 0 #000,
         -1px  1px 0 #000,
          1px  1px 0 #000;
@@ -118,25 +118,13 @@
   const scratchTheme = Blockly.Theme.defineTheme('scratch', {
     base: Blockly.Themes.Classic,
     blockStyles: {
-      logic_blocks: {
-        colourPrimary: '#00ffff', // この色はレインボーの縁取りに使われませんが、定義は残します
-        hat: 'cap'
-      },
-      loop_blocks: {
-        colourPrimary: '#ff66ff'
-      },
-      math_blocks: {
-        colourPrimary: '#66ff66'
-      },
-      text_blocks: {
-        colourPrimary: '#ffff66'
-      },
-      variable_blocks: {
-        colourPrimary: '#ff9966'
-      },
-      procedure_blocks: {
-        colourPrimary: '#6699ff'
-      }
+      // colourPrimaryはテーマカラーとして定義しますが、ブロックのfillには直接使用しません
+      logic_blocks: { colourPrimary: '#00ffff', hat: 'cap' },
+      loop_blocks: { colourPrimary: '#ff66ff' },
+      math_blocks: { colourPrimary: '#66ff66' },
+      text_blocks: { colourPrimary: '#ffff66' },
+      variable_blocks: { colourPrimary: '#ff9966' },
+      procedure_blocks: { colourPrimary: '#6699ff' }
     },
     fontStyle: {
       family: '"Arial Rounded MT Bold", Orbitron, sans-serif',
@@ -161,7 +149,7 @@
   });
 
   // レインボーグラデーションを動的に生成し、ブロックに適用する関数
-  function applyRainbowBorder(blockSvg) {
+  function applyRainbowBorderAndDarkFill(blockSvg) {
     const svgDefs = blockSvg.ownerSVGElement.querySelector('defs') || blockSvg.ownerSVGElement.insertBefore(document.createElementNS('http://www.w3.org/2000/svg', 'defs'), blockSvg.ownerSVGElement.firstChild);
 
     // ユニークなIDを生成
@@ -200,27 +188,42 @@
 
     svgDefs.appendChild(linearGradient);
 
-    // ブロックの背景要素にグラデーションを適用
-    blockSvg.querySelector('.blocklyBlockBackground').setAttribute('stroke', `url(#${gradientId})`);
+    const blockBackground = blockSvg.querySelector('.blocklyBlockBackground');
+    if (blockBackground) {
+        // ブロックの背景色をダークグレーに設定
+        blockBackground.setAttribute('fill', '#1a1a1a');
+        // ブロックの背景にグラデーションを適用
+        blockBackground.setAttribute('stroke', `url(#${gradientId})`);
+    }
   }
 
-  // ブロックがレンダリングされるたびにレインボーボーダーを適用
+  // ブロックがレンダリングされるたびにレインボーボーダーとダークフィルを適用
   workspace.addChangeListener(function(event) {
-    if (event.type === Blockly.Events.BLOCK_CREATE || event.type === Blockly.Events.BLOCK_CHANGE) {
+    if (event.type === Blockly.Events.BLOCK_CREATE || event.type === Blockly.Events.BLOCK_CHANGE || event.type === Blockly.Events.BLOCK_MOVE) {
+      // ブロックが作成、変更、移動されたときに処理
       const block = workspace.getBlockById(event.blockId);
       if (block && block.svgGroup_) {
-        applyRainbowBorder(block.svgGroup_);
+        applyRainbowBorderAndDarkFill(block.svgGroup_);
       }
+    } else if (event.type === Blockly.Events.FINISHED_LOADING) {
+        // ワークスペースの初期ロード完了時にも適用 (XMLからのロードなど)
+        workspace.getAllBlocks(false).forEach(block => {
+            if (block.svgGroup_) {
+                applyRainbowBorderAndDarkFill(block.svgGroup_);
+            }
+        });
     }
   });
 
   // ワークスペースの初期レンダリング後に既存のブロックにも適用
-  workspace.render();
-  workspace.getAllBlocks(false).forEach(block => {
-    if (block.svgGroup_) {
-      applyRainbowBorder(block.svgGroup_);
-    }
-  });
+  // (もし addChangeListener で対応できないケースがあれば)
+  setTimeout(() => {
+    workspace.getAllBlocks(false).forEach(block => {
+      if (block.svgGroup_) {
+        applyRainbowBorderAndDarkFill(block.svgGroup_);
+      }
+    });
+  }, 100); // Blocklyの描画が完了するのを少し待つ
 
   // 日本語カッコつき表記
   Blockly.Msg.CONTROLS_IF_MSG_IF = "if (もし)";
