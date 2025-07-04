@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Blockly JavaScript Playground</title>
+  <title>Blockly JavaScript (日本語つき)</title>
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
   <style>
     html, body {
@@ -46,31 +46,46 @@
 <pre id="codeArea">// JavaScript code appears here</pre>
 
 <xml id="toolbox" style="display: none">
-  <category name="Logic" colour="210">
+  <category name="Logic (論理)" colour="210">
     <block type="controls_if"></block>
     <block type="logic_compare"></block>
   </category>
-  <category name="Loops" colour="120">
+  <category name="Loops (くりかえし)" colour="120">
     <block type="controls_repeat_ext">
-      <value name="TIMES"><shadow type="math_number"><field name="NUM">10</field></shadow></value>
+      <value name="TIMES"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
     </block>
     <block type="controls_whileUntil"></block>
   </category>
-  <category name="Math" colour="230">
+  <category name="Math (数学)" colour="230">
     <block type="math_number"><field name="NUM">123</field></block>
     <block type="math_arithmetic"></block>
   </category>
-  <category name="Text" colour="160">
+  <category name="Text (文字)" colour="160">
     <block type="text"></block>
     <block type="text_print"></block>
   </category>
-  <category name="Variables" custom="VARIABLE" colour="330"></category>
+  <category name="Variables (変数)" custom="VARIABLE" colour="330"></category>
 </xml>
 
 <script>
   const workspace = Blockly.inject('blocklyDiv', {
     toolbox: document.getElementById('toolbox')
   });
+
+  // 日本語ラベルを追加
+  Blockly.Msg.CONTROLS_IF_MSG_IF = "if (もし)";
+  Blockly.Msg.CONTROLS_REPEAT_INPUT_DO = "do (する)";
+  Blockly.Msg.CONTROLS_REPEAT_TITLE = "repeat (くりかえし) %1 回";
+  Blockly.Msg.TEXT_PRINT_TITLE = "print (表示) %1";
+  Blockly.Msg.MATH_NUMBER_TOOLTIP = "number (数値)";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_EQ = "equal (等しい)";
+  Blockly.Msg.VARIABLES_DEFAULT_NAME = "item (項目)";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TITLE_WHILE = "while (〜の間)";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TITLE_UNTIL = "until (〜まで)";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_ADD = "add (加算)";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_SUB = "subtract (減算)";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MULT = "multiply (乗算)";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDE = "divide (除算)";
 
   function showCode() {
     const code = Blockly.JavaScript.workspaceToCode(workspace);
@@ -83,7 +98,7 @@
       document.getElementById('codeArea').textContent = code;
       new Function(code)();
     } catch (e) {
-      alert("Error:\n" + e);
+      alert("エラー:\n" + e);
     }
   }
 </script>
