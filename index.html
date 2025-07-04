@@ -59,6 +59,20 @@
 
     .blocklyBlockBackground {
       rx: 8;  /* 角を丸くする */
+      fill: #1a1a1a !important; /* ブロックの背景色をダークグレーに */
+      stroke-width: 3px; /* 縁取りを太くする */
+      /* 各ブロックのテーマカラーで光るエフェクト */
+      filter: drop-shadow(0 0 6px var(--blockly-block-color-primary));
+      transition: filter 0.2s ease-in-out;
+    }
+
+    .blocklyBlockBackground:hover {
+      filter: drop-shadow(0 0 12px var(--blockly-block-color-primary)); /* ホバーでさらに強く光る */
+    }
+
+    /* ブロック内の文字色を白に */
+    .blocklyText {
+      fill: #fff !important;
     }
   </style>
 </head>
@@ -127,15 +141,16 @@
     fontStyle: {
       family: '"Arial Rounded MT Bold", Orbitron, sans-serif',
       weight: 'bold',
-      size: 14
+      size: 14,
+      color: '#fff' // フォント色を白に設定
     },
     componentStyles: {
       workspaceBackgroundColour: '#111',
       toolboxBackgroundColour: '#1b1b1b',
       flyoutBackgroundColour: '#222',
-      scrollbarColour: '#0ff',
-      insertionMarkerColour: '#ff0',
-      cursorColour: '#f0f'
+      scrollbarColour: '#0ff', /* 鮮やかなシアン */
+      insertionMarkerColour: '#ff0', /* 鮮やかなイエロー */
+      cursorColour: '#f0f' /* 鮮やかなマゼンタ */
     }
   });
 
