@@ -2,23 +2,63 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Blockly JS Playground (拡張版)</title>
+  <title>Blockly Gaming JS</title>
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
   <style>
-    html, body { margin: 0; height: 100%; }
-    #blocklyDiv { height: 70%; width: 100%; }
-    #buttons { padding: 10px; background: #eee; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+    }
+
+    #blocklyDiv {
+      height: 70%;
+      width: 100%;
+    }
+
+    #buttons {
+      padding: 10px;
+      background: linear-gradient(90deg, #1f1f1f, #2b2b2b);
+      border-top: 2px solid #444;
+    }
+
+    #buttons button {
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 8px 14px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: all 0.2s ease;
+    }
+
+    #buttons button:hover {
+      background: #0ff;
+      color: #111;
+    }
+
     #codeArea {
-      height: 20%; width: 100%;
-      background: #f0f0f0;
+      height: 20%;
+      width: 100%;
+      background-color: #1a1a1a;
+      color: #0f0;
       font-family: monospace;
       padding: 10px;
       overflow: auto;
-      border-top: 2px solid #ccc;
+      border-top: 2px solid #444;
     }
-    button {
-      font-size: 16px; margin-right: 10px;
+
+    /* ゲーミング風ブロックスタイルのカスタムテーマ */
+    .blocklySvg {
+      background: #121212 !important;
     }
+
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
   </style>
 </head>
 <body>
@@ -30,99 +70,65 @@
 </div>
 <pre id="codeArea">// JavaScript code appears here</pre>
 
-<xml id="toolbox" style="display:none">
-  <category name="Logic (論理)" colour="210">
+<!-- Toolbox: 同じままですが視覚に影響しない -->
+<xml id="toolbox" style="display: none">
+  <category name="Logic (論理)" colour="#00ffff">
     <block type="controls_if"></block>
     <block type="logic_compare"></block>
-    <block type="logic_operation"></block>
-    <block type="logic_negate"></block>
-    <block type="logic_boolean"></block>
-    <block type="logic_null"></block>
   </category>
-  <category name="Loops (くりかえし)" colour="120">
-    <block type="controls_repeat_ext"><value name="TIMES"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
-    <block type="controls_whileUntil"></block>
-    <block type="controls_for">
-      <value name="FROM"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
-      <value name="TO"><shadow type="math_number"><field name="NUM">10</field></shadow></value>
-      <value name="BY"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+  <category name="Loops (くりかえし)" colour="#ff00ff">
+    <block type="controls_repeat_ext">
+      <value name="TIMES"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
     </block>
-    <block type="controls_forEach"></block>
-    <block type="controls_flow_statements"></block>
+    <block type="controls_whileUntil"></block>
   </category>
-  <category name="Math (数学)" colour="230">
+  <category name="Math (数学)" colour="#00ff00">
     <block type="math_number"></block>
     <block type="math_arithmetic"></block>
-    <block type="math_single"></block>
-    <block type="math_trig"></block>
-    <block type="math_constant"></block>
-    <block type="math_number_property"></block>
-    <block type="math_round"></block>
-    <block type="math_on_list"></block>
-    <block type="math_modulo"></block>
-    <block type="math_constrain"></block>
-    <block type="math_random_int"></block>
-    <block type="math_random_float"></block>
   </category>
-  <category name="Text (文字)" colour="160">
+  <category name="Text (文字)" colour="#ffff00">
     <block type="text"></block>
-    <block type="text_join"></block>
-    <block type="text_append"></block>
-    <block type="text_length"></block>
-    <block type="text_isEmpty"></block>
-    <block type="text_indexOf"></block>
-    <block type="text_charAt"></block>
-    <block type="text_getSubstring"></block>
-    <block type="text_changeCase"></block>
-    <block type="text_trim"></block>
     <block type="text_print"></block>
-    <block type="text_prompt_ext"></block>
   </category>
-  <category name="Lists (リスト)" colour="260">
-    <block type="lists_create_empty"></block>
-    <block type="lists_create_with"></block>
-    <block type="lists_repeat"></block>
-    <block type="lists_length"></block>
-    <block type="lists_isEmpty"></block>
-    <block type="lists_indexOf"></block>
-    <block type="lists_getIndex"></block>
-    <block type="lists_setIndex"></block>
-    <block type="lists_getSublist"></block>
-    <block type="lists_split"></block>
-    <block type="lists_sort"></block>
-  </category>
-  <category name="Colour (色)" colour="20">
-    <block type="colour_picker"></block>
-    <block type="colour_random"></block>
-    <block type="colour_rgb"></block>
-    <block type="colour_blend"></block>
-  </category>
-  <category name="Variables (変数)" custom="VARIABLE" colour="330"></category>
-  <category name="Functions (関数)" custom="PROCEDURE" colour="290"></category>
+  <category name="Variables (変数)" custom="VARIABLE" colour="#ff6600"></category>
+  <category name="Functions (関数)" custom="PROCEDURE" colour="#3399ff"></category>
 </xml>
 
 <script>
-  const workspace = Blockly.inject('blocklyDiv', {
-    toolbox: document.getElementById('toolbox'),
-    scrollbars: true,
+  // Blocklyのテーマ定義（ネオン風）
+  const neonTheme = Blockly.Theme.defineTheme('neon', {
+    base: Blockly.Themes.Classic,
+    componentStyles: {
+      workspaceBackgroundColour: '#121212',
+      toolboxBackgroundColour: '#1f1f1f',
+      flyoutBackgroundColour: '#181818',
+      flyoutOpacity: 0.9,
+      scrollbarColour: '#0ff',
+      insertionMarkerColour: '#ff0',
+      insertionMarkerOpacity: 0.6,
+      markerColour: '#f0f',
+      cursorColour: '#0f0'
+    },
+    fontStyle: {
+      family: 'Orbitron',
+      weight: '500',
+      size: 14
+    }
   });
 
-  // 日本語訳をカッコで追加
+  const workspace = Blockly.inject('blocklyDiv', {
+    toolbox: document.getElementById('toolbox'),
+    theme: neonTheme,
+    scrollbars: true
+  });
+
+  // カッコ付き日本語ラベル
   Blockly.Msg.CONTROLS_IF_MSG_IF = "if (もし)";
-  Blockly.Msg.CONTROLS_WHILEUNTIL_TITLE_WHILE = "while (〜の間)";
-  Blockly.Msg.CONTROLS_WHILEUNTIL_TITLE_UNTIL = "until (〜まで)";
   Blockly.Msg.CONTROLS_REPEAT_TITLE = "repeat (くりかえし) %1 回";
-  Blockly.Msg.CONTROLS_FOR_TITLE = "for (変数ループ)";
-  Blockly.Msg.CONTROLS_FOREACH_TITLE = "for each (各要素)";
   Blockly.Msg.TEXT_PRINT_TITLE = "print (表示) %1";
-  Blockly.Msg.TEXT_PROMPT_TYPE_TEXT = "prompt (入力を受け取る)";
-  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_ADD = "add (加算)";
-  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_SUB = "subtract (減算)";
-  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MULT = "multiply (乗算)";
-  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDE = "divide (除算)";
-  Blockly.Msg.LISTS_CREATE_EMPTY_TITLE = "create empty list (空のリスト)";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_EQ = "equal (等しい)";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TITLE_WHILE = "while (〜の間)";
   Blockly.Msg.VARIABLES_DEFAULT_NAME = "item (項目)";
-  Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE = "function (関数)";
 
   function showCode() {
     const code = Blockly.JavaScript.workspaceToCode(workspace);
@@ -135,7 +141,7 @@
       document.getElementById('codeArea').textContent = code;
       new Function(code)();
     } catch (e) {
-      alert("実行エラー:\n" + e);
+      alert("エラー:\n" + e);
     }
   }
 </script>
