@@ -2,15 +2,15 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Blockly Gaming JS</title>
+  <title>Scratch風 Blockly（ゲーミング）</title>
   <script src="https://unpkg.com/blockly/blockly.min.js"></script>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
-      background-color: #121212;
-      color: #eee;
-      font-family: 'Orbitron', sans-serif;
+      height: 100%;
+      background: #111;
+      color: #fff;
+      font-family: 'Arial Rounded MT Bold', 'Orbitron', sans-serif;
       overflow: hidden;
     }
 
@@ -20,109 +20,132 @@
     }
 
     #buttons {
+      background: #1b1b1b;
       padding: 10px;
-      background: linear-gradient(90deg, #1f1f1f, #2b2b2b);
       border-top: 2px solid #444;
     }
 
-    #buttons button {
-      background: #111;
+    button {
+      background: #0f0f0f;
       color: #0ff;
       border: 1px solid #0ff;
       padding: 8px 14px;
+      border-radius: 10px;
       font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
       margin-right: 10px;
+      cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    #buttons button:hover {
+    button:hover {
       background: #0ff;
-      color: #111;
+      color: #000;
     }
 
     #codeArea {
-      height: 20%;
-      width: 100%;
-      background-color: #1a1a1a;
+      background: #1a1a1a;
       color: #0f0;
       font-family: monospace;
-      padding: 10px;
+      height: 20%;
       overflow: auto;
-      border-top: 2px solid #444;
+      padding: 10px;
+      border-top: 2px solid #333;
     }
 
-    /* ゲーミング風ブロックスタイルのカスタムテーマ */
+    /* Scratch風に見せる */
     .blocklySvg {
-      background: #121212 !important;
+      background: #111 !important;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+    .blocklyBlockBackground {
+      rx: 8;  /* 角を丸くする */
+    }
   </style>
 </head>
 <body>
 
 <div id="blocklyDiv"></div>
+
 <div id="buttons">
   <button onclick="runCode()">Run</button>
   <button onclick="showCode()">Show JS</button>
 </div>
+
 <pre id="codeArea">// JavaScript code appears here</pre>
 
-<!-- Toolbox: 同じままですが視覚に影響しない -->
 <xml id="toolbox" style="display: none">
   <category name="Logic (論理)" colour="#00ffff">
     <block type="controls_if"></block>
     <block type="logic_compare"></block>
+    <block type="logic_operation"></block>
   </category>
-  <category name="Loops (くりかえし)" colour="#ff00ff">
+  <category name="Loops (くりかえし)" colour="#ff66ff">
     <block type="controls_repeat_ext">
-      <value name="TIMES"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
+      <value name="TIMES"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
     </block>
     <block type="controls_whileUntil"></block>
   </category>
-  <category name="Math (数学)" colour="#00ff00">
+  <category name="Math (数学)" colour="#66ff66">
     <block type="math_number"></block>
     <block type="math_arithmetic"></block>
+    <block type="math_modulo"></block>
   </category>
-  <category name="Text (文字)" colour="#ffff00">
+  <category name="Text (文字)" colour="#ffff66">
     <block type="text"></block>
     <block type="text_print"></block>
+    <block type="text_length"></block>
   </category>
-  <category name="Variables (変数)" custom="VARIABLE" colour="#ff6600"></category>
-  <category name="Functions (関数)" custom="PROCEDURE" colour="#3399ff"></category>
+  <category name="Variables (変数)" custom="VARIABLE" colour="#ff9966"></category>
+  <category name="Functions (関数)" custom="PROCEDURE" colour="#6699ff"></category>
 </xml>
 
 <script>
-  // Blocklyのテーマ定義（ネオン風）
-  const neonTheme = Blockly.Theme.defineTheme('neon', {
+  // カスタムScratch風テーマ（角丸、配色、太字）
+  const scratchTheme = Blockly.Theme.defineTheme('scratch', {
     base: Blockly.Themes.Classic,
-    componentStyles: {
-      workspaceBackgroundColour: '#121212',
-      toolboxBackgroundColour: '#1f1f1f',
-      flyoutBackgroundColour: '#181818',
-      flyoutOpacity: 0.9,
-      scrollbarColour: '#0ff',
-      insertionMarkerColour: '#ff0',
-      insertionMarkerOpacity: 0.6,
-      markerColour: '#f0f',
-      cursorColour: '#0f0'
+    blockStyles: {
+      logic_blocks: {
+        colourPrimary: '#00ffff',
+        hat: 'cap'
+      },
+      loop_blocks: {
+        colourPrimary: '#ff66ff'
+      },
+      math_blocks: {
+        colourPrimary: '#66ff66'
+      },
+      text_blocks: {
+        colourPrimary: '#ffff66'
+      },
+      variable_blocks: {
+        colourPrimary: '#ff9966'
+      },
+      procedure_blocks: {
+        colourPrimary: '#6699ff'
+      }
     },
     fontStyle: {
-      family: 'Orbitron',
-      weight: '500',
+      family: '"Arial Rounded MT Bold", Orbitron, sans-serif',
+      weight: 'bold',
       size: 14
+    },
+    componentStyles: {
+      workspaceBackgroundColour: '#111',
+      toolboxBackgroundColour: '#1b1b1b',
+      flyoutBackgroundColour: '#222',
+      scrollbarColour: '#0ff',
+      insertionMarkerColour: '#ff0',
+      cursorColour: '#f0f'
     }
   });
 
   const workspace = Blockly.inject('blocklyDiv', {
     toolbox: document.getElementById('toolbox'),
-    theme: neonTheme,
+    theme: scratchTheme,
     scrollbars: true
   });
 
-  // カッコ付き日本語ラベル
+  // 日本語カッコつき表記
   Blockly.Msg.CONTROLS_IF_MSG_IF = "if (もし)";
   Blockly.Msg.CONTROLS_REPEAT_TITLE = "repeat (くりかえし) %1 回";
   Blockly.Msg.TEXT_PRINT_TITLE = "print (表示) %1";
