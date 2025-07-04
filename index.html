@@ -61,18 +61,18 @@
       rx: 8;  /* 角を丸くする */
       fill: #1a1a1a !important; /* ブロックの背景色をダークグレーに */
       stroke-width: 3px; /* 縁取りを太くする */
-      /* 各ブロックのテーマカラーで光るエフェクト */
-      filter: drop-shadow(0 0 6px var(--blockly-block-color-primary));
-      transition: filter 0.2s ease-in-out;
-    }
-
-    .blocklyBlockBackground:hover {
-      filter: drop-shadow(0 0 12px var(--blockly-block-color-primary)); /* ホバーでさらに強く光る */
+      /* レインボーの縁取りはJavaScriptで動的に設定されます */
     }
 
     /* ブロック内の文字色を白に */
     .blocklyText {
-      fill: #fff !important;
+      fill: #fff !important; /* 白い文字色 */
+      /* 黒い縁取り（影でシミュレート）*/
+      text-shadow: 
+        -1px -1px 0 #000,  
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
     }
   </style>
 </head>
@@ -114,12 +114,12 @@
 </xml>
 
 <script>
-  // カスタムScratch風テーマ（角丸、配色、太字）
+  // カスタムScratch風テーマ
   const scratchTheme = Blockly.Theme.defineTheme('scratch', {
     base: Blockly.Themes.Classic,
     blockStyles: {
       logic_blocks: {
-        colourPrimary: '#00ffff',
+        colourPrimary: '#00ffff', // この色はレインボーの縁取りに使われませんが、定義は残します
         hat: 'cap'
       },
       loop_blocks: {
@@ -142,7 +142,7 @@
       family: '"Arial Rounded MT Bold", Orbitron, sans-serif',
       weight: 'bold',
       size: 14,
-      color: '#fff' // フォント色を白に設定
+      color: '#fff' // フォント色を白に設定 (CSSで上書きされます)
     },
     componentStyles: {
       workspaceBackgroundColour: '#111',
@@ -158,6 +158,68 @@
     toolbox: document.getElementById('toolbox'),
     theme: scratchTheme,
     scrollbars: true
+  });
+
+  // レインボーグラデーションを動的に生成し、ブロックに適用する関数
+  function applyRainbowBorder(blockSvg) {
+    const svgDefs = blockSvg.ownerSVGElement.querySelector('defs') || blockSvg.ownerSVGElement.insertBefore(document.createElementNS('http://www.w3.org/2000/svg', 'defs'), blockSvg.ownerSVGElement.firstChild);
+
+    // ユニークなIDを生成
+    const gradientId = 'rainbowGradient-' + Math.random().toString(36).substr(2, 9);
+    const angle = Math.floor(Math.random() * 360); // 0〜359度のランダムな角度
+
+    const linearGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    linearGradient.setAttribute('id', gradientId);
+    linearGradient.setAttribute('x1', '0%');
+    linearGradient.setAttribute('y1', '0%');
+    linearGradient.setAttribute('x2', '100%');
+    linearGradient.setAttribute('y2', '0%'); // 水平グラデーションの基本
+
+    // 角度を適用するための変換行列 (x2, y2を調整)
+    const rad = angle * Math.PI / 180;
+    linearGradient.setAttribute('x2', Math.cos(rad).toFixed(2) * 100 + '%');
+    linearGradient.setAttribute('y2', Math.sin(rad).toFixed(2) * 100 + '%');
+
+
+    const colors = [
+      { offset: '0%', color: '#ff0000' },   // Red
+      { offset: '16%', color: '#ff7f00' },  // Orange
+      { offset: '33%', color: '#ffff00' },  // Yellow
+      { offset: '50%', color: '#00ff00' },  // Green
+      { offset: '66%', color: '#0000ff' },  // Blue
+      { offset: '83%', color: '#4b0082' },  // Indigo
+      { offset: '100%', color: '#ee82ee' } // Violet
+    ];
+
+    colors.forEach(stopData => {
+      const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop.setAttribute('offset', stopData.offset);
+      stop.setAttribute('stop-color', stopData.color);
+      linearGradient.appendChild(stop);
+    });
+
+    svgDefs.appendChild(linearGradient);
+
+    // ブロックの背景要素にグラデーションを適用
+    blockSvg.querySelector('.blocklyBlockBackground').setAttribute('stroke', `url(#${gradientId})`);
+  }
+
+  // ブロックがレンダリングされるたびにレインボーボーダーを適用
+  workspace.addChangeListener(function(event) {
+    if (event.type === Blockly.Events.BLOCK_CREATE || event.type === Blockly.Events.BLOCK_CHANGE) {
+      const block = workspace.getBlockById(event.blockId);
+      if (block && block.svgGroup_) {
+        applyRainbowBorder(block.svgGroup_);
+      }
+    }
+  });
+
+  // ワークスペースの初期レンダリング後に既存のブロックにも適用
+  workspace.render();
+  workspace.getAllBlocks(false).forEach(block => {
+    if (block.svgGroup_) {
+      applyRainbowBorder(block.svgGroup_);
+    }
   });
 
   // 日本語カッコつき表記
